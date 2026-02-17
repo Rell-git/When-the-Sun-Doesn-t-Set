@@ -55,6 +55,11 @@ user-scalable=no">
             touch-action: manipulation;
         }
 
+        #scene-wrap {
+            position: fixed;
+            inset: 0;
+        }
+
         body {
             display: flex;
             flex-direction: column;
@@ -1206,29 +1211,35 @@ user-scalable=no">
         }
 
         #ui {
-            flex-shrink: 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            max-width: 700px;
-            align-self: center;
-            padding: 0 clamp(8px, 3vw, 16px) clamp(10px, 2.5vh, 22px) clamp(8px, 3vw, 16px);
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: clamp(6px, 1.5vw, 11px);
-            background: linear-gradient(to top, rgba(0, 0, 0, .7) 0%, transparent 100%);
-            position: relative;
-            z-index: 25;
+            gap: 10px;
+            z-index: 40;
+
+            background: linear-gradient(to top,
+                    rgba(0, 0, 0, 0.95) 0%,
+                    rgba(0, 0, 0, 0.85) 40%,
+                    rgba(0, 0, 0, 0.6) 70%,
+                    transparent 100%);
         }
+
 
         #dbox {
             width: 100%;
-            background: rgba(0, 0, 0, .82);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-top: 2px solid rgba(190, 120, 40, .2);
-            border-radius: 3px;
-            padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 22px) clamp(12px, 2vw, 16px);
-            min-height: clamp(72px, 14vw, 96px);
-            max-height: clamp(140px, 35vh, 240px);
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 2px solid rgba(190, 120, 40, 0.3);
+            border-radius: 6px;
+            padding: 18px 24px;
+            min-height: 90px;
+            max-height: 220px;
             overflow-y: auto;
         }
 
@@ -1282,11 +1293,12 @@ user-scalable=no">
 
         #choices {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: clamp(6px, 2vw, 9px);
+            flex-direction: column;
+            gap: 8px;
             width: 100%;
+            max-width: 900px;
         }
+
 
         .cbtn {
             font-family: 'IM Fell English', serif;
@@ -1405,74 +1417,73 @@ user-scalable=no">
             opacity: 1;
         }
 
-        #install-screen{
-  position:fixed;
-  inset:0;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-  flex-direction:column;
-  transition:opacity 1s ease;
-}
+        #install-screen {
+            position: fixed;
+            inset: 0;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            transition: opacity 1s ease;
+        }
 
-#install-content{
-  text-align:center;
-  color:white;
-}
+        #install-content {
+            text-align: center;
+            color: white;
+        }
 
-#install-content h1{
-  font-size:28px;
-  margin-bottom:10px;
-  letter-spacing:2px;
-}
+        #install-content h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
 
-#install-content p{
-  opacity:0.6;
-  margin-bottom:30px;
-}
+        #install-content p {
+            opacity: 0.6;
+            margin-bottom: 30px;
+        }
 
-#install-btn{
-  padding:12px 30px;
-  font-size:16px;
-  background:#c87a30;
-  border:none;
-  color:black;
-  cursor:pointer;
-  margin-bottom:20px;
-}
+        #install-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #c87a30;
+            border: none;
+            color: black;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
 
-#loading-bar-wrap{
-  width:250px;
-  height:4px;
-  background:rgba(255,255,255,0.1);
-  margin:auto;
-  overflow:hidden;
-}
+        #loading-bar-wrap {
+            width: 250px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: auto;
+            overflow: hidden;
+        }
 
-#loading-bar{
-  width:0%;
-  height:100%;
-  background:#c87a30;
-  transition:width 2.5s ease;
-}
-
+        #loading-bar {
+            width: 0%;
+            height: 100%;
+            background: #c87a30;
+            transition: width 2.5s ease;
+        }
     </style>
 </head>
 
 <body>
 
     <div id="install-screen">
-  <div id="install-content">
-    <h1>When the Sun Doesn't Set</h1>
-    <p>An Interactive Horror Experience</p>
-    <button id="install-btn">Install Game</button>
-    <div id="loading-bar-wrap">
-      <div id="loading-bar"></div>
+        <div id="install-content">
+            <h1>When the Sun Doesn't Set</h1>
+            <p>An Interactive Horror Experience</p>
+            <button id="install-btn">Install Game</button>
+            <div id="loading-bar-wrap">
+                <div id="loading-bar"></div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
 
     <!-- ════ ALL SCENES WRAPPER ════ -->
@@ -2355,37 +2366,37 @@ user-scalable=no">
 
         let deferredPrompt;
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
 
-const installBtn = document.getElementById("install-btn");
-const installScreen = document.getElementById("install-screen");
-const gameContainer = document.getElementById("game-container");
-const loadingBar = document.getElementById("loading-bar");
+        const installBtn = document.getElementById("install-btn");
+        const installScreen = document.getElementById("install-screen");
+        const gameContainer = document.getElementById("game-container");
+        const loadingBar = document.getElementById("loading-bar");
 
-installBtn.addEventListener("click", async () => {
+        installBtn.addEventListener("click", async () => {
 
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-  }
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            }
 
-  // Smooth loading animation
-  loadingBar.style.width = "100%";
+            // Smooth loading animation
+            loadingBar.style.width = "100%";
 
-  setTimeout(() => {
-    installScreen.style.opacity = "0";
+            setTimeout(() => {
+                installScreen.style.opacity = "0";
 
-    setTimeout(() => {
-      installScreen.style.display = "none";
-      gameContainer.style.display = "block";
-    }, 1000);
+                setTimeout(() => {
+                    installScreen.style.display = "none";
+                    gameContainer.style.display = "block";
+                }, 1000);
 
-  }, 2500);
-});
+            }, 2500);
+        });
     </script>
 </body>
 
