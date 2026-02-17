@@ -1,0 +1,2392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, 
+maximum-scale=1.0, minimum-scale=1.0, 
+user-scalable=no">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>When the Sun Doesn't Set</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+
+    <style>
+        @media screen and (orientation: portrait) {
+            body::before {
+                content: "Please rotate your device";
+                position: fixed;
+                inset: 0;
+                background: black;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 20px;
+                z-index: 9999;
+            }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap');
+
+        :root {
+            --wood-a: #2c1c10;
+            --wood-b: #231408;
+            --floor-a: #2e1d0f;
+            --floor-b: #201205;
+            --ceil-a: #1e1009;
+            --ceil-b: #160d06;
+            --amber: #c87a30;
+            --text: #f0e8d8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            font-family: 'IM Fell English', serif;
+            background: #000;
+        }
+
+        /* ═══ SCENE CONTAINER (takes all space above UI) ═══ */
+        #scene-wrap {
+            flex: 1 1 0;
+            min-height: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ═══ SCENE WRAPPERS ═══ */
+        .scene {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .6s;
+        }
+
+        .scene.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ══════ SCENE 1 – OUTSIDE NIGHT ══════ */
+        #sky {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, #1a0533 0%, #7a2d00 40%, #ff8c00 70%, #ffcc66 100%);
+            transition: background 5s ease;
+        }
+
+        #sky.dusk {
+            background: linear-gradient(to bottom, #08000f 0%, #3a0828 35%, #8b1a00 65%, #bb4400 100%);
+        }
+
+        #sky.night {
+            background: linear-gradient(to bottom, #000 0%, #08000f 45%, #130328 80%, #1f0514 100%);
+        }
+
+        #sun-out {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(60px, 9vw, 88px);
+            height: clamp(60px, 9vw, 88px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 38% 38%, #fff8d0, #ffcc00 28%, #ff8800 68%, #cc4400);
+            box-shadow: 0 0 60px 20px rgba(255, 150, 0, .5), 0 0 120px 50px rgba(255, 80, 0, .2);
+            top: 28%;
+            transition: top 6s cubic-bezier(.4, 0, .8, 1), opacity 3s, box-shadow 3s;
+        }
+
+        #sun-out.setting {
+            top: 62%;
+            box-shadow: 0 0 90px 35px rgba(255, 60, 0, .4), 0 0 200px 90px rgba(190, 30, 0, .15);
+        }
+
+        #sun-out.set {
+            top: 78%;
+            opacity: 0;
+        }
+
+        #stars-out {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 5s;
+            pointer-events: none;
+        }
+
+        #stars-out.show {
+            opacity: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twink 2s infinite alternate;
+        }
+
+        @keyframes twink {
+            from {
+                opacity: .15
+            }
+
+            to {
+                opacity: .9
+            }
+        }
+
+        #ground-out {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            z-index: 2;
+            background: linear-gradient(to bottom, #16340a, #0c1c05 60%, #050e02);
+        }
+
+        #ground-out::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 22px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath d='M0 20 Q5 4 10 20 Q15 0 20 20 Q25 7 30 20 Q35 2 40 20 Q45 9 50 20 Q55 1 60 20 Q65 6 70 20 Q75 3 80 20 Q85 8 90 20 Q95 0 100 20Z' fill='%2316340a'/%3E%3C/svg%3E") repeat-x bottom;
+            background-size: 110px 22px;
+        }
+
+        #outside-svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 48%;
+            z-index: 3;
+        }
+
+        #milo-out {
+            position: absolute;
+            bottom: 29.5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            transition: bottom 1.2s, transform 1.2s;
+        }
+
+        #milo-out.stand {
+            bottom: 31.5%;
+        }
+
+        #milo-out.look {
+            transform: translateX(-50%) scaleX(-1);
+        }
+
+        /* ══════ SCENE 2 – SALA ══════ */
+        #sala-bg {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg, var(--wood-a) 0, var(--wood-a) 37px, var(--wood-b) 37px, var(--wood-b) 40px);
+        }
+
+        #sala-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(91deg, transparent 0, transparent 80px, rgba(0, 0, 0, .07) 80px, rgba(0, 0, 0, .07) 81px);
+            pointer-events: none;
+        }
+
+        .room-ceil {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: clamp(50px, 13%, 90px);
+            background: repeating-linear-gradient(90deg, var(--ceil-a) 0, var(--ceil-a) 60px, var(--ceil-b) 60px, var(--ceil-b) 62px);
+            border-bottom: 4px solid #0e0705;
+            box-shadow: 0 6px 40px rgba(0, 0, 0, .7);
+            z-index: 2;
+        }
+
+        .room-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: clamp(55px, 20%, 130px);
+            background: repeating-linear-gradient(90deg, var(--floor-a) 0, var(--floor-a) 75px, var(--floor-b) 75px, var(--floor-b) 77px);
+            border-top: 4px solid #0e0705;
+            box-shadow: 0 -10px 50px rgba(0, 0, 0, .8);
+            z-index: 2;
+        }
+
+        .room-floor::before {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: 0;
+            right: 0;
+            height: 35px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .55));
+            pointer-events: none;
+        }
+
+        .room-wall-l,
+        .room-wall-r {
+            position: absolute;
+            top: clamp(50px, 13%, 90px);
+            bottom: clamp(55px, 20%, 130px);
+            width: 10%;
+            background: repeating-linear-gradient(180deg, #1c1009 0, #1c1009 37px, #130c05 37px, #130c05 40px);
+            z-index: 2;
+            filter: brightness(.5);
+        }
+
+        .room-wall-l {
+            left: 0;
+            clip-path: polygon(0 0, 100% 8%, 100% 92%, 0 100%);
+        }
+
+        .room-wall-r {
+            right: 0;
+            clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 92%);
+        }
+
+        /* Sala window */
+        #sala-win-wrap {
+            position: absolute;
+            top: 16%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .win-frame {
+            width: clamp(150px, 22vw, 230px);
+            height: clamp(140px, 20vw, 220px);
+            background: #150e07;
+            border-radius: 4px 4px 0 0;
+            padding: 10px 10px 0;
+            box-shadow: 4px 6px 24px rgba(0, 0, 0, .7);
+        }
+
+        .win-glass {
+            width: 100%;
+            height: 100%;
+            background: #05040e;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: background 3s;
+        }
+
+        .win-glass.red-out {
+            background: radial-gradient(ellipse at 50% 60%, #1a0008, #040009);
+            box-shadow: inset 0 0 50px rgba(120, 0, 0, .5);
+        }
+
+        .win-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 10px;
+            margin-left: -5px;
+            background: #150e07;
+            z-index: 4;
+        }
+
+        .win-glass::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 10px;
+            margin-top: -5px;
+            background: #150e07;
+            z-index: 4;
+        }
+
+        #sala-moon {
+            position: absolute;
+            top: 14%;
+            right: 16%;
+            width: clamp(18px, 3vw, 28px);
+            height: clamp(18px, 3vw, 28px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 38% 33%, #fffce0, #e8d96a 60%, #b8a83a);
+            box-shadow: 0 0 14px 5px rgba(220, 200, 60, .22);
+            opacity: 0;
+            transition: opacity 3s;
+            z-index: 1;
+        }
+
+        #sala-moon.show {
+            opacity: .85;
+        }
+
+        .wstar {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 3s;
+            z-index: 1;
+        }
+
+        .wstar.show {
+            opacity: .65;
+        }
+
+        .wtree {
+            position: absolute;
+            bottom: 0;
+            background: #000;
+            z-index: 1;
+            clip-path: polygon(50% 0%, 66% 34%, 56% 34%, 72% 58%, 58% 58%, 73% 84%, 27% 84%, 42% 58%, 28% 58%, 44% 34%, 34% 34%);
+        }
+
+        .win-sill {
+            width: calc(clamp(150px, 22vw, 230px) + 20px);
+            height: 18px;
+            background: linear-gradient(to bottom, #3c2211, #261408);
+            border-radius: 0 0 3px 3px;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, .6);
+        }
+
+        /* Monster shadow that slides across window */
+        #monster {
+            position: absolute;
+            top: 8%;
+            right: -80px;
+            width: clamp(40px, 8vw, 75px);
+            height: clamp(80px, 16vw, 140px);
+            background: #000;
+            z-index: 3;
+            opacity: 0;
+            clip-path: polygon(40% 0%, 60% 0%, 75% 12%, 85% 8%, 100% 20%, 88% 30%, 95% 45%, 80% 40%, 82% 55%, 70% 48%, 72% 65%, 60% 55%, 58% 75%, 52% 65%, 52% 90%, 48% 90%, 48% 65%, 42% 75%, 40% 55%, 28% 65%, 30% 48%, 18% 55%, 20% 40%, 5% 45%, 12% 30%, 0% 20%, 15% 8%, 25% 12%, 40% 0%);
+        }
+
+        #monster.pass {
+            animation: mpass 3.5s ease-in-out forwards;
+        }
+
+        @keyframes mpass {
+            0% {
+                right: -80px;
+                opacity: 0;
+            }
+
+            8% {
+                opacity: .92;
+            }
+
+            92% {
+                opacity: .88;
+            }
+
+            100% {
+                right: calc(100% + 80px);
+                opacity: 0;
+            }
+        }
+
+        /* Sala lamp */
+        #sala-lamp {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            right: clamp(50px, 13%, 120px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .ls {
+            width: clamp(36px, 5vw, 54px);
+            height: clamp(26px, 4vw, 38px);
+            background: linear-gradient(to bottom, #4a2a00, #1e1000);
+            clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+            position: relative;
+        }
+
+        .ls::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 8%;
+            right: 8%;
+            height: 5px;
+            background: #5a3400;
+            border-radius: 2px;
+        }
+
+        .lg {
+            width: clamp(34px, 5vw, 50px);
+            height: clamp(22px, 3.5vw, 32px);
+            background: radial-gradient(ellipse, rgba(255, 220, 80, .9), rgba(255, 150, 20, 0) 100%);
+            margin-top: -2px;
+            z-index: -1;
+            animation: flicker 4s infinite;
+            transition: opacity 1.5s;
+        }
+
+        .lb {
+            width: 7px;
+            height: clamp(40px, 8vw, 65px);
+            background: linear-gradient(to right, #5c3a00, #3a2200, #5c3a00);
+            border-radius: 2px;
+        }
+
+        .lf {
+            width: clamp(24px, 4vw, 38px);
+            height: 11px;
+            background: linear-gradient(to bottom, #4c2e00, #2e1c00);
+            border-radius: 3px;
+        }
+
+        #sala-halo {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            right: clamp(20px, 7%, 80px);
+            width: clamp(120px, 25vw, 250px);
+            height: clamp(80px, 15vw, 160px);
+            background: radial-gradient(ellipse at 72% 0%, rgba(255, 180, 30, .16), transparent 68%);
+            pointer-events: none;
+            z-index: 4;
+            animation: flicker 4s infinite;
+            transition: opacity 1.5s;
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            18% {
+                opacity: .86
+            }
+
+            42% {
+                opacity: .93
+            }
+
+            58% {
+                opacity: .8
+            }
+
+            82% {
+                opacity: .96
+            }
+        }
+
+        /* Sala door */
+        #sala-door {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            right: clamp(20px, 10%, 120px);
+            width: clamp(50px, 7vw, 72px);
+            height: clamp(100px, 20vw, 156px);
+            background: #120a05;
+            border: 4px solid #0c0703;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            z-index: 5;
+            transition: box-shadow 2s;
+        }
+
+        #sala-door::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: -18px;
+            right: -18px;
+            height: 6px;
+            background: rgba(0, 0, 0, .85);
+            border-radius: 2px;
+        }
+
+        .dknob {
+            position: absolute;
+            right: 8px;
+            top: 48%;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #6a4200, #301c00);
+        }
+
+        #sala-door.seep {
+            box-shadow: 0 0 0 2px #330000, inset 0 -12px 22px rgba(130, 0, 0, .45);
+        }
+
+        #sala-door.bleed {
+            box-shadow: 0 0 25px 6px rgba(170, 0, 0, .55), inset 0 -18px 28px rgba(190, 0, 0, .55);
+        }
+
+        /* Sala sofa */
+        #sala-sofa {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            left: 8%;
+            z-index: 4;
+        }
+
+        /* Sala Milo (standing) */
+        #milo-sala {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            transition: left 1.5s, transform 1.2s;
+        }
+
+        #milo-sala.right {
+            left: 62%;
+        }
+
+        #milo-sala.left {
+            left: 38%;
+        }
+
+        #milo-sala.turn {
+            transform: translateX(-50%) scaleX(-1);
+        }
+
+        .room-vig {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 55%, transparent 20%, rgba(0, 0, 0, .52) 62%, rgba(0, 0, 0, .92) 100%);
+            transition: background 3s;
+        }
+
+        .room-vig.darker {
+            background: radial-gradient(ellipse at 50% 55%, transparent 10%, rgba(0, 0, 0, .68) 52%, rgba(0, 0, 0, .98) 100%);
+        }
+
+        /* ══════ SCENE 3 – BEDROOM ══════ */
+        #bed-bg {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg, #231509 0, #231509 37px, #190f05 37px, #190f05 40px);
+        }
+
+        #bed-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(91deg, transparent 0, transparent 85px, rgba(0, 0, 0, .08) 85px, rgba(0, 0, 0, .08) 86px);
+            pointer-events: none;
+        }
+
+        #bed-ceil {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: clamp(50px, 13%, 90px);
+            background: repeating-linear-gradient(90deg, #1a0e07 0, #1a0e07 58px, #120a04 58px, #120a04 60px);
+            border-bottom: 4px solid #0a0502;
+            box-shadow: 0 6px 40px rgba(0, 0, 0, .8);
+            z-index: 2;
+        }
+
+        #bed-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: clamp(55px, 20%, 130px);
+            background: repeating-linear-gradient(90deg, #281808 0, #281808 70px, #1a1004 70px, #1a1004 72px);
+            border-top: 4px solid #0a0502;
+            box-shadow: 0 -10px 50px rgba(0, 0, 0, .85);
+            z-index: 2;
+        }
+
+        #bed-floor::before {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: 0;
+            right: 0;
+            height: 35px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .6));
+            pointer-events: none;
+        }
+
+        #bed-wall-l,
+        #bed-wall-r {
+            position: absolute;
+            top: clamp(50px, 13%, 90px);
+            bottom: clamp(55px, 20%, 130px);
+            width: 10%;
+            background: repeating-linear-gradient(180deg, #170d06 0, #170d06 37px, #0f0803 37px, #0f0803 40px);
+            z-index: 2;
+            filter: brightness(.45);
+        }
+
+        #bed-wall-l {
+            left: 0;
+            clip-path: polygon(0 0, 100% 8%, 100% 92%, 0 100%);
+        }
+
+        #bed-wall-r {
+            right: 0;
+            clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 92%);
+        }
+
+        /* Small bedroom window with curtains */
+        #bed-win-wrap {
+            position: absolute;
+            top: 15%;
+            right: 14%;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bwin-frame {
+            width: clamp(80px, 12vw, 120px);
+            height: clamp(90px, 14vw, 140px);
+            background: #100a04;
+            border-radius: 3px 3px 0 0;
+            padding: 8px 8px 0;
+            box-shadow: 3px 5px 18px rgba(0, 0, 0, .7);
+        }
+
+        .bwin-glass {
+            width: 100%;
+            height: 100%;
+            background: #03030a;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bwin-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 8px;
+            margin-left: -4px;
+            background: #100a04;
+            z-index: 2;
+        }
+
+        .bwin-glass::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 8px;
+            margin-top: -4px;
+            background: #100a04;
+            z-index: 2;
+        }
+
+        /* Curtains */
+        .curtain-l,
+        .curtain-r {
+            position: absolute;
+            top: -2px;
+            bottom: -2px;
+            width: 40%;
+            z-index: 3;
+            border-radius: 2px;
+            background: linear-gradient(to bottom, #2a1508 0%, #1e0e04 30%, #2a1508 60%, #1e0e04 100%);
+        }
+
+        .curtain-l {
+            left: -6px;
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+        }
+
+        .curtain-r {
+            right: -6px;
+            clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .bwin-sill {
+            width: calc(clamp(80px, 12vw, 120px) + 16px);
+            height: 12px;
+            background: linear-gradient(to bottom, #301a08, #200e04);
+            border-radius: 0 0 2px 2px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .6);
+        }
+
+        /* Moon glow through bedroom window */
+        #bed-moonbeam {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 80%;
+            background: linear-gradient(to bottom, rgba(60, 40, 100, .12), transparent);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 2s;
+        }
+
+        #bed-moonbeam.show {
+            opacity: 1;
+        }
+
+        /* Bed */
+        #bed-obj {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+        }
+
+        /* Bedside lamp */
+        #bed-lamp {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            left: clamp(40px, 12%, 100px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+        }
+
+        #bed-lamp-glow {
+            width: clamp(28px, 4vw, 40px);
+            height: clamp(18px, 3vw, 26px);
+            background: radial-gradient(ellipse, rgba(255, 210, 70, .85), rgba(255, 140, 20, 0) 100%);
+            margin-top: -2px;
+            z-index: -1;
+            animation: flicker 4s infinite;
+            transition: opacity 1.5s;
+        }
+
+        #bed-lamp.off .lg,
+        #bed-lamp.off #bed-lamp-glow {
+            opacity: 0 !important;
+            animation: none !important;
+        }
+
+        #bed-halo {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            left: 0;
+            width: clamp(100px, 22vw, 200px);
+            height: clamp(70px, 14vw, 140px);
+            background: radial-gradient(ellipse at 26% 0%, rgba(255, 175, 25, .14), transparent 68%);
+            pointer-events: none;
+            z-index: 4;
+            animation: flicker 4s infinite;
+            transition: opacity 1.5s;
+        }
+
+        #bed-halo.off {
+            opacity: 0;
+            animation: none;
+        }
+
+        #bed-dark-overlay {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            opacity: 0;
+            z-index: 9;
+            pointer-events: none;
+            transition: opacity 2.5s;
+        }
+
+        #bed-dark-overlay.on {
+            opacity: 1;
+        }
+
+        #milo-bed {
+            position: absolute;
+            bottom: clamp(55px, 20%, 130px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+        }
+
+        #bed-vig {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 38% 55%, transparent 18%, rgba(0, 0, 0, .55) 60%, rgba(0, 0, 0, .94) 100%);
+            transition: background 3s;
+        }
+
+        #bed-vig.darker {
+            background: radial-gradient(ellipse at 38% 55%, transparent 8%, rgba(0, 0, 0, .72) 50%, rgba(0, 0, 0, 1) 100%);
+        }
+
+        /* ══════ SCENE 4 – SUNRISE ══════ */
+        #sunrise-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, #05000a 0%, #0a0318 40%, #1a0820 80%, #2a0f0a 100%);
+            transition: background 3s ease;
+        }
+
+        #sunrise-bg.rising {
+            background: linear-gradient(to bottom, #1a0822 0%, #6a1a10 35%, #e05510 65%, #f5a840 100%);
+        }
+
+        #sunrise-bg.bright {
+            background: linear-gradient(to bottom, #3a1840 0%, #d05018 30%, #f09030 60%, #ffd060 100%);
+        }
+
+        #sun-rise {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(70px, 11vw, 110px);
+            height: clamp(70px, 11vw, 110px);
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 38%, #fff8d0, #ffee44 20%, #ffaa00 55%, #ee5500);
+            box-shadow: 0 0 80px 30px rgba(255, 150, 0, .6), 0 0 160px 70px rgba(255, 70, 0, .25);
+            bottom: -clamp(70px, 11vw, 110px);
+            opacity: 0;
+            z-index: 1;
+            transition: bottom 5s cubic-bezier(.1, .85, .4, 1), opacity 2s;
+        }
+
+        #sun-rise.rise {
+            bottom: 18%;
+            opacity: 1;
+            box-shadow: 0 0 120px 50px rgba(255, 130, 0, .6), 0 0 260px 100px rgba(255, 60, 0, .25);
+        }
+
+        #sunrise-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 25%;
+            background: linear-gradient(to bottom, #1e2e08, #0c1603);
+            z-index: 3;
+        }
+
+        #sunrise-ground::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath d='M0 20 Q5 4 10 20 Q15 0 20 20 Q25 7 30 20 Q35 2 40 20 Q45 9 50 20 Q55 1 60 20 Q65 6 70 20 Q75 3 80 20 Q85 8 90 20 Q95 0 100 20Z' fill='%231e2e08'/%3E%3C/svg%3E") repeat-x bottom;
+            background-size: 110px 24px;
+        }
+
+        /* Warm glow on ground from rising sun */
+        #sunrise-ground::after {
+            content: '';
+            position: absolute;
+            top: -60px;
+            left: 20%;
+            right: 20%;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 100, 20, .15));
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s;
+        }
+
+        #sunrise-fog.show~#sunrise-ground::after,
+        #sunrise-bg.rising~#sunrise-ground::after {
+            opacity: 1;
+        }
+
+        #sunrise-svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            z-index: 4;
+        }
+
+        #sunrise-fog {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(200, 90, 20, .18) 0%, transparent 55%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 3s;
+            z-index: 5;
+        }
+
+        #sunrise-fog.show {
+            opacity: 1;
+        }
+
+        /* ══════ SCENE 5 – FOREST ══════ */
+        #forest-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, #040608 0%, #060a05 50%, #030704 100%);
+        }
+
+        /* Ambient moving fog */
+        #forest-fog {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 80%, rgba(30, 50, 20, .35) 0%, transparent 60%);
+            animation: fog-drift 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes fog-drift {
+            from {
+                transform: translateX(-3%)
+            }
+
+            to {
+                transform: translateX(3%)
+            }
+        }
+
+        #forest-svg {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+        }
+
+        #forest-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28%;
+            z-index: 3;
+            background: linear-gradient(to bottom, #0c1408, #050804);
+        }
+
+        #forest-ground::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            right: 0;
+            height: 18px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 15'%3E%3Cpath d='M0 15 Q5 3 10 15 Q15 0 20 15 Q25 5 30 15 Q35 1 40 15 Q45 7 50 15 Q55 0 60 15 Q65 5 70 15 Q75 2 80 15 Q85 6 90 15 Q95 0 100 15Z' fill='%230c1408'/%3E%3C/svg%3E") repeat-x bottom;
+            background-size: 90px 18px;
+        }
+
+        /* Fireflies */
+        .firefly {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(180, 255, 100, .8);
+            box-shadow: 0 0 6px 2px rgba(120, 220, 60, .5);
+            animation: ff-float 4s ease-in-out infinite;
+        }
+
+        @keyframes ff-float {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: .8;
+            }
+
+            50% {
+                transform: translate(var(--fx), var(--fy));
+                opacity: .9;
+            }
+
+            80% {
+                opacity: .7;
+            }
+
+            100% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+        }
+
+        /* Milo in forest (standing) */
+        #milo-forest {
+            position: absolute;
+            bottom: 28%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            transition: left 2s ease;
+        }
+
+        /* Dog silhouette */
+        #dog-wrap {
+            position: absolute;
+            bottom: 27.8%;
+            left: 42%;
+            transform: translateX(-50%);
+            z-index: 6;
+            transition: left 0.3s ease;
+        }
+
+        #dog-wrap.bark {
+            animation: dog-bark .12s ease-in-out 4;
+        }
+
+        #dog-wrap.run {
+            left: -20%;
+            transition: left 2.2s cubic-bezier(.6, 0, 1, .6);
+        }
+
+        @keyframes dog-bark {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(0) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) rotate(-4deg) scale(1.06);
+            }
+        }
+
+        /* Bark text bubble */
+        #bark-bubble {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(10px, 2.5vw, 14px);
+            color: #ffffcc;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 255, 100, .5);
+            opacity: 0;
+            white-space: nowrap;
+            transition: opacity .3s;
+        }
+
+        #bark-bubble.on {
+            opacity: 1;
+        }
+
+        /* Forest vignette */
+        #forest-vig {
+            position: absolute;
+            inset: 0;
+            z-index: 9;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 60%, transparent 18%, rgba(0, 0, 0, .6) 58%, rgba(0, 0, 0, .95) 100%);
+        }
+
+        /* ═══ OVERLAYS ═══ */
+        #veil {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            opacity: 0;
+            z-index: 20;
+            pointer-events: none;
+            transition: opacity 3s ease;
+        }
+
+        #veil.fade {
+            opacity: 1;
+        }
+
+        #redflash {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 25%, rgba(80, 0, 0, .72) 100%);
+            opacity: 0;
+            z-index: 9;
+            pointer-events: none;
+            animation: rpulse 3.5s infinite;
+        }
+
+        #redflash.on {
+            opacity: 1;
+        }
+
+        @keyframes rpulse {
+
+            0%,
+            100% {
+                opacity: 0
+            }
+
+            50% {
+                opacity: .85
+            }
+        }
+
+        /* HUD */
+        #phase-lbl {
+            position: absolute;
+            top: clamp(8px, 1.5vh, 16px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(8px, 2.5vw, 10px);
+            letter-spacing: 4px;
+            color: rgba(195, 150, 70, .4);
+            text-transform: uppercase;
+            z-index: 25;
+            white-space: nowrap;
+        }
+
+        #sw {
+            position: absolute;
+            top: clamp(8px, 1.5vh, 16px);
+            right: clamp(8px, 3vw, 16px);
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        #sl {
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(8px, 2.5vw, 10px);
+            letter-spacing: 2px;
+            color: rgba(190, 145, 68, .36);
+            text-transform: uppercase;
+        }
+
+        #sbg {
+            width: clamp(50px, 12vw, 80px);
+            height: 3px;
+            background: rgba(255, 255, 255, .07);
+            border-radius: 2px;
+        }
+
+        #sb {
+            height: 100%;
+            width: 100%;
+            background: rgba(195, 140, 55, .55);
+            border-radius: 2px;
+            transition: width .6s, background 1s;
+        }
+
+        #ui {
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 700px;
+            align-self: center;
+            padding: 0 clamp(8px, 3vw, 16px) clamp(10px, 2.5vh, 22px) clamp(8px, 3vw, 16px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(6px, 1.5vw, 11px);
+            background: linear-gradient(to top, rgba(0, 0, 0, .7) 0%, transparent 100%);
+            position: relative;
+            z-index: 25;
+        }
+
+        #dbox {
+            width: 100%;
+            background: rgba(0, 0, 0, .82);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-top: 2px solid rgba(190, 120, 40, .2);
+            border-radius: 3px;
+            padding: clamp(10px, 2vw, 14px) clamp(12px, 3vw, 22px) clamp(12px, 2vw, 16px);
+            min-height: clamp(72px, 14vw, 96px);
+            max-height: clamp(140px, 35vh, 240px);
+            overflow-y: auto;
+        }
+
+        #dbox::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        #dbox::-webkit-scrollbar-thumb {
+            background: rgba(190, 120, 40, .3);
+        }
+
+        #player-line {
+            font-size: clamp(11px, 3vw, 13px);
+            color: rgba(150, 205, 255, .6);
+            font-style: italic;
+            margin-bottom: 8px;
+            opacity: 0;
+            transition: opacity .4s;
+            line-height: 1.5;
+        }
+
+        #player-line.on {
+            opacity: 1;
+        }
+
+        #player-line::before {
+            content: 'You  ';
+            color: rgba(80, 160, 255, .45);
+            font-style: normal;
+            font-size: clamp(9px, 2.5vw, 11px);
+            letter-spacing: 2px;
+            font-family: 'Special Elite', cursive;
+            margin-right: 5px;
+        }
+
+        #stag {
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(9px, 2.5vw, 11px);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 6px;
+        }
+
+        #dtext {
+            font-size: clamp(14px, 4vw, 18px);
+            line-height: 1.65;
+            color: var(--text);
+            min-height: 24px;
+        }
+
+        #choices {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: clamp(6px, 2vw, 9px);
+            width: 100%;
+        }
+
+        .cbtn {
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            font-size: clamp(12px, 3.5vw, 15px);
+            padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 20px);
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(190, 145, 65, .2);
+            color: var(--text);
+            cursor: pointer;
+            transition: all .3s;
+            border-radius: 2px;
+            letter-spacing: .3px;
+            text-align: left;
+            max-width: clamp(200px, 45vw, 340px);
+            flex: 1 1 auto;
+        }
+
+        .cbtn::before {
+            content: '› ';
+            color: rgba(190, 110, 35, .55);
+            font-style: normal;
+        }
+
+        .cbtn:hover:not(:disabled) {
+            background: rgba(155, 65, 0, .22);
+            border-color: rgba(205, 115, 32, .6);
+            color: #fff;
+            box-shadow: 0 0 18px rgba(155, 65, 0, .25);
+        }
+
+        .cbtn:disabled {
+            opacity: .2;
+            cursor: default;
+        }
+
+        /* ═══ UI ═══ */
+        #end {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: #000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: clamp(14px, 4vw, 24px);
+            text-align: center;
+            padding: clamp(20px, 5vw, 48px);
+        }
+
+        #end.on {
+            display: flex;
+        }
+
+        #et {
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(9px, 2.5vw, 11px);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #1e0000;
+            animation: ft 3s forwards;
+        }
+
+        #eq {
+            font-size: clamp(16px, 4.5vw, 21px);
+            color: #3a0000;
+            line-height: 1.9;
+            max-width: 480px;
+            animation: ft 3s .8s forwards;
+            opacity: 0;
+            font-style: italic;
+        }
+
+        #es {
+            font-family: 'Special Elite', cursive;
+            font-size: clamp(8px, 2.2vw, 10px);
+            letter-spacing: 4px;
+            color: #260000;
+            opacity: 0;
+            animation: ft 2s 2.6s forwards;
+            text-transform: uppercase;
+        }
+
+        @keyframes ft {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        /* Sunrise caption */
+        #sunrise-caption {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'IM Fell English', serif;
+            font-style: italic;
+            font-size: clamp(16px, 4.5vw, 22px);
+            color: rgba(255, 220, 120, .65);
+            text-align: center;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 1.5s;
+            pointer-events: none;
+            max-width: 80%;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        #sunrise-caption.on {
+            opacity: 1;
+        }
+
+        #install-screen{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  flex-direction:column;
+  transition:opacity 1s ease;
+}
+
+#install-content{
+  text-align:center;
+  color:white;
+}
+
+#install-content h1{
+  font-size:28px;
+  margin-bottom:10px;
+  letter-spacing:2px;
+}
+
+#install-content p{
+  opacity:0.6;
+  margin-bottom:30px;
+}
+
+#install-btn{
+  padding:12px 30px;
+  font-size:16px;
+  background:#c87a30;
+  border:none;
+  color:black;
+  cursor:pointer;
+  margin-bottom:20px;
+}
+
+#loading-bar-wrap{
+  width:250px;
+  height:4px;
+  background:rgba(255,255,255,0.1);
+  margin:auto;
+  overflow:hidden;
+}
+
+#loading-bar{
+  width:0%;
+  height:100%;
+  background:#c87a30;
+  transition:width 2.5s ease;
+}
+
+    </style>
+</head>
+
+<body>
+
+    <div id="install-screen">
+  <div id="install-content">
+    <h1>When the Sun Doesn't Set</h1>
+    <p>An Interactive Horror Experience</p>
+    <button id="install-btn">Install Game</button>
+    <div id="loading-bar-wrap">
+      <div id="loading-bar"></div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- ════ ALL SCENES WRAPPER ════ -->
+    <div id="game-container" style="display:none;">
+
+        <!-- ══ SCENE 1: OUTSIDE ══ -->
+        <div class="scene active" id="sc-outside">
+            <div id="sky"></div>
+            <div id="stars-out"></div>
+            <div id="sun-out"></div>
+            <svg id="outside-svg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMax slice"
+                xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="500" cy="430" rx="720" ry="130" fill="#0c1b04" />
+                <g opacity=".45">
+                    <rect x="55" y="238" width="16" height="62" fill="#0a0f02" />
+                    <ellipse cx="63" cy="226" rx="36" ry="52" fill="#0c1503" />
+                    <rect x="91" y="250" width="13" height="52" fill="#0a0f02" />
+                    <ellipse cx="98" cy="240" rx="28" ry="42" fill="#0c1503" />
+                    <rect x="880" y="248" width="15" height="55" fill="#0a0f02" />
+                    <ellipse cx="888" cy="237" rx="33" ry="48" fill="#0c1503" />
+                    <rect x="916" y="257" width="13" height="46" fill="#0a0f02" />
+                    <ellipse cx="923" cy="248" rx="26" ry="40" fill="#0c1503" />
+                </g>
+                <rect x="22" y="194" width="24" height="106" fill="#100700" />
+                <ellipse cx="34" cy="178" rx="54" ry="78" fill="#0f1903" />
+                <ellipse cx="34" cy="191" rx="46" ry="66" fill="#121e04" />
+                <rect x="82" y="217" width="19" height="83" fill="#100700" />
+                <ellipse cx="92" cy="202" rx="44" ry="62" fill="#0d1803" />
+                <rect x="132" y="225" width="20" height="75" fill="#100700" />
+                <ellipse cx="142" cy="211" rx="40" ry="56" fill="#121e04" />
+                <line x1="198" y1="300" x2="202" y2="228" stroke="#0e0500" stroke-width="13" />
+                <line x1="202" y1="260" x2="170" y2="233" stroke="#0e0500" stroke-width="6" />
+                <line x1="202" y1="246" x2="228" y2="222" stroke="#0e0500" stroke-width="5" />
+                <line x1="202" y1="236" x2="186" y2="213" stroke="#0e0500" stroke-width="4" />
+                <line x1="778" y1="300" x2="773" y2="226" stroke="#0e0500" stroke-width="13" />
+                <line x1="773" y1="258" x2="804" y2="230" stroke="#0e0500" stroke-width="6" />
+                <line x1="773" y1="244" x2="748" y2="220" stroke="#0e0500" stroke-width="5" />
+                <line x1="773" y1="234" x2="789" y2="210" stroke="#0e0500" stroke-width="4" />
+                <rect x="838" y="211" width="24" height="89" fill="#100700" />
+                <ellipse cx="850" cy="195" rx="52" ry="72" fill="#0f1903" />
+                <ellipse cx="850" cy="207" rx="44" ry="62" fill="#121e04" />
+                <rect x="892" y="222" width="18" height="78" fill="#100700" />
+                <ellipse cx="901" cy="207" rx="41" ry="60" fill="#0d1803" />
+                <rect x="940" y="229" width="20" height="71" fill="#100700" />
+                <ellipse cx="950" cy="215" rx="38" ry="54" fill="#121e04" />
+                <g transform="translate(615,145)">
+                    <rect x="0" y="100" width="185" height="155" fill="#0d0a07" />
+                    <polygon points="-18,100 203,100 92,-12" fill="#080604" />
+                    <rect x="138" y="48" width="24" height="57" fill="#080604" />
+                    <rect x="68" y="200" width="38" height="55" fill="#060403" rx="3" />
+                    <circle cx="99" cy="228" r="3" fill="#1a1207" />
+                    <rect id="win-l-out" x="16" y="142" width="42" height="40" fill="#1a1000" rx="2" />
+                    <rect id="win-r-out" x="127" y="142" width="42" height="40" fill="#1a1000" rx="2" />
+                    <line x1="16" y1="162" x2="58" y2="162" stroke="#060403" stroke-width="2.5" />
+                    <line x1="37" y1="142" x2="37" y2="182" stroke="#060403" stroke-width="2.5" />
+                    <line x1="127" y1="162" x2="169" y2="162" stroke="#060403" stroke-width="2.5" />
+                    <line x1="148" y1="142" x2="148" y2="182" stroke="#060403" stroke-width="2.5" />
+                    <rect x="58" y="253" width="62" height="8" fill="#060403" />
+                </g>
+                <rect x="376" y="307" width="108" height="14" rx="5" fill="#1a0c00" />
+                <rect x="384" y="318" width="11" height="22" rx="2" fill="#130900" />
+                <rect x="463" y="318" width="11" height="22" rx="2" fill="#130900" />
+            </svg>
+            <div id="ground-out"></div>
+            <div id="milo-out">
+                <svg width="52" height="82" viewBox="0 0 58 88">
+                    <ellipse cx="29" cy="21" rx="12" ry="13" fill="#030201" />
+                    <rect x="17" y="31" width="24" height="28" rx="4" fill="#030201" />
+                    <line x1="17" y1="40" x2="4" y2="57" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="41" y1="40" x2="54" y2="52" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="21" y1="57" x2="8" y2="77" stroke="#030201" stroke-width="8" stroke-linecap="round" />
+                    <line x1="37" y1="57" x2="50" y2="77" stroke="#030201" stroke-width="8" stroke-linecap="round" />
+                    <ellipse cx="8" cy="80" rx="8" ry="5" fill="#030201" />
+                    <ellipse cx="50" cy="80" rx="8" ry="5" fill="#030201" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- ══ SCENE 2: SALA ══ -->
+        <div class="scene" id="sc-sala">
+            <div id="sala-bg"></div>
+            <div class="room-ceil"></div>
+            <div class="room-wall-l"></div>
+            <div class="room-wall-r"></div>
+            <div id="sala-win-wrap">
+                <div class="win-frame">
+                    <div class="win-glass" id="sala-win-glass">
+                        <div id="sala-moon"></div>
+                        <div class="wstar" id="sw1" style="top:18%;left:14%;width:2px;height:2px;"></div>
+                        <div class="wstar" id="sw2" style="top:32%;left:74%;width:1.5px;height:1.5px;"></div>
+                        <div class="wstar" id="sw3" style="top:11%;left:58%;width:2px;height:2px;"></div>
+                        <div class="wtree" style="left:4%;height:62%;width:clamp(22px,4vw,32px);"></div>
+                        <div class="wtree" style="right:7%;height:48%;width:clamp(18px,3.5vw,28px);"></div>
+                        <!-- Monster shadow -->
+                        <div id="monster"></div>
+                    </div>
+                </div>
+                <div class="win-sill"></div>
+            </div>
+            <div id="sala-lamp">
+                <div class="ls"></div>
+                <div class="lg"></div>
+                <div class="lb"></div>
+                <div class="lf"></div>
+            </div>
+            <div id="sala-halo"></div>
+            <div id="sala-door">
+                <div class="dknob"></div>
+            </div>
+            <div id="sala-sofa">
+                <svg width="clamp(110px,22vw,165px)" height="82" viewBox="0 0 165 82">
+                    <rect x="0" y="32" width="165" height="40" rx="8" fill="#1c1008" />
+                    <rect x="0" y="19" width="32" height="56" rx="5" fill="#170e06" />
+                    <rect x="133" y="19" width="32" height="56" rx="5" fill="#170e06" />
+                    <rect x="16" y="8" width="133" height="30" rx="6" fill="#1c1008" />
+                    <rect x="18" y="70" width="20" height="12" rx="2" fill="#120a04" />
+                    <rect x="127" y="70" width="20" height="12" rx="2" fill="#120a04" />
+                </svg>
+            </div>
+            <div id="milo-sala">
+                <svg width="50" height="110" viewBox="0 0 56 120">
+                    <ellipse cx="28" cy="16" rx="12" ry="13" fill="#030201" />
+                    <rect x="25" y="27" width="7" height="8" fill="#030201" />
+                    <rect x="14" y="34" width="28" height="40" rx="4" fill="#030201" />
+                    <line x1="14" y1="38" x2="4" y2="72" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="42" y1="38" x2="50" y2="66" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="22" y1="72" x2="18" y2="108" stroke="#030201" stroke-width="9" stroke-linecap="round" />
+                    <line x1="34" y1="72" x2="38" y2="108" stroke="#030201" stroke-width="9" stroke-linecap="round" />
+                    <ellipse cx="16" cy="111" rx="9" ry="5" fill="#030201" />
+                    <ellipse cx="40" cy="111" rx="9" ry="5" fill="#030201" />
+                </svg>
+            </div>
+            <div class="room-vig" id="sala-vig"></div>
+            <div class="room-floor"></div>
+        </div>
+
+        <!-- ══ SCENE 3: BEDROOM ══ -->
+        <div class="scene" id="sc-bedroom">
+            <div id="bed-bg"></div>
+            <div id="bed-ceil"></div>
+            <div id="bed-wall-l"></div>
+            <div id="bed-wall-r"></div>
+            <div id="bed-win-wrap">
+                <div class="bwin-frame">
+                    <div class="bwin-glass">
+                        <div class="curtain-l"></div>
+                        <div class="curtain-r"></div>
+                    </div>
+                </div>
+                <div class="bwin-sill"></div>
+                <div id="bed-moonbeam"></div>
+            </div>
+            <div id="bed-obj">
+                <svg width="clamp(200px,45vw,340px)" height="clamp(80px,18vw,130px)" viewBox="0 0 340 130">
+                    <!-- Bed frame -->
+                    <rect x="0" y="60" width="340" height="70" rx="4" fill="#1a0e06" />
+                    <!-- Headboard -->
+                    <rect x="0" y="10" width="28" height="120" rx="4" fill="#140a04" />
+                    <!-- Pillow area -->
+                    <rect x="30" y="55" width="130" height="32" rx="8" fill="#251408" />
+                    <rect x="38" y="58" width="110" height="26" rx="6" fill="#2c1a0a" />
+                    <!-- Blanket fold -->
+                    <rect x="30" y="82" width="300" height="40" rx="3" fill="#1c1108" />
+                    <rect x="30" y="82" width="300" height="8" rx="3" fill="#241508" />
+                    <!-- Footboard -->
+                    <rect x="312" y="40" width="28" height="90" rx="4" fill="#140a04" />
+                    <!-- Legs -->
+                    <rect x="10" y="125" width="12" height="10" rx="2" fill="#0e0703" />
+                    <rect x="318" y="125" width="12" height="10" rx="2" fill="#0e0703" />
+                </svg>
+            </div>
+            <div id="bed-lamp">
+                <div class="ls"></div>
+                <div id="bed-lamp-glow" class="lg"></div>
+                <div class="lb" style="height:clamp(30px,6vw,48px);"></div>
+                <div class="lf" style="width:clamp(20px,3.5vw,32px);"></div>
+            </div>
+            <div id="bed-halo"></div>
+            <!-- Bedside table -->
+            <div style="position:absolute;bottom:clamp(55px,20%,130px);left:clamp(30px,9%,90px);z-index:4;">
+                <svg width="clamp(40px,8vw,60px)" height="clamp(36px,7vw,55px)" viewBox="0 0 60 55">
+                    <rect x="0" y="8" width="60" height="6" rx="2" fill="#1e1108" />
+                    <rect x="5" y="14" width="50" height="38" rx="3" fill="#180e06" />
+                    <rect x="8" y="18" width="44" height="28" rx="2" fill="#130b04" />
+                </svg>
+            </div>
+            <div id="milo-bed">
+                <!-- Milo sitting on bed -->
+                <svg width="clamp(40px,9vw,60px)" height="clamp(65px,14vw,95px)" viewBox="0 0 60 95">
+                    <ellipse cx="30" cy="20" rx="12" ry="13" fill="#030201" />
+                    <rect x="18" y="30" width="24" height="26" rx="4" fill="#030201" />
+                    <line x1="18" y1="40" x2="5" y2="56" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="42" y1="40" x2="55" y2="52" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="22" y1="55" x2="10" y2="76" stroke="#030201" stroke-width="8" stroke-linecap="round" />
+                    <line x1="38" y1="55" x2="50" y2="76" stroke="#030201" stroke-width="8" stroke-linecap="round" />
+                    <ellipse cx="9" cy="80" rx="9" ry="5" fill="#030201" />
+                    <ellipse cx="51" cy="80" rx="9" ry="5" fill="#030201" />
+                </svg>
+            </div>
+            <div id="bed-vig"></div>
+            <div id="bed-dark-overlay"></div>
+            <div id="bed-floor"></div>
+        </div>
+
+        <!-- ══ SCENE 4: SUNRISE ══ -->
+        <div class="scene" id="sc-sunrise">
+            <div id="sunrise-bg"></div>
+            <div id="sunrise-fog"></div>
+            <div id="sun-rise"></div>
+            <svg id="sunrise-svg" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMax slice"
+                xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="200" width="1000" height="100" fill="#0c1806" />
+                <rect x="30" y="120" width="22" height="80" fill="#080e02" />
+                <ellipse cx="41" cy="108" rx="48" ry="70" fill="#0a1303" />
+                <rect x="85" y="138" width="18" height="62" fill="#080e02" />
+                <ellipse cx="94" cy="127" rx="38" ry="55" fill="#0c1804" />
+                <rect x="130" y="145" width="20" height="55" fill="#080e02" />
+                <ellipse cx="140" cy="134" rx="34" ry="50" fill="#0a1303" />
+                <rect x="170" y="152" width="16" height="48" fill="#080e02" />
+                <ellipse cx="178" cy="143" rx="28" ry="44" fill="#0c1804" />
+                <rect x="840" y="125" width="22" height="75" fill="#080e02" />
+                <ellipse cx="851" cy="112" rx="46" ry="68" fill="#0a1303" />
+                <rect x="890" y="140" width="18" height="60" fill="#080e02" />
+                <ellipse cx="899" cy="130" rx="36" ry="52" fill="#0c1804" />
+                <rect x="932" y="148" width="20" height="52" fill="#080e02" />
+                <ellipse cx="942" cy="137" rx="32" ry="48" fill="#0a1303" />
+                <rect x="968" y="155" width="16" height="45" fill="#080e02" />
+                <ellipse cx="976" cy="146" rx="26" ry="42" fill="#0c1804" />
+            </svg>
+            <div id="sunrise-ground"></div>
+            <div id="sunrise-caption"></div>
+        </div>
+
+        <!-- ══ SCENE 5: FOREST ══ -->
+        <div class="scene" id="sc-forest">
+            <div id="forest-bg"></div>
+            <div id="forest-fog"></div>
+            <svg id="forest-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMax slice"
+                xmlns="http://www.w3.org/2000/svg">
+                <!-- Very tall background trees (darkest) -->
+                <g opacity=".5">
+                    <rect x="0" y="0" width="18" height="600" fill="#030504" />
+                    <rect x="50" y="20" width="15" height="580" fill="#030504" />
+                    <rect x="95" y="10" width="20" height="590" fill="#030504" />
+                    <rect x="148" y="5" width="14" height="595" fill="#030504" />
+                    <rect x="830" y="8" width="18" height="592" fill="#030504" />
+                    <rect x="875" y="0" width="16" height="600" fill="#030504" />
+                    <rect x="920" y="15" width="20" height="585" fill="#030504" />
+                    <rect x="965" y="5" width="15" height="595" fill="#030504" />
+                </g>
+                <!-- Mid-distance trees -->
+                <g opacity=".75">
+                    <rect x="18" y="60" width="28" height="540" fill="#050805" />
+                    <ellipse cx="32" cy="52" rx="40" ry="80" fill="#060a05" />
+                    <rect x="78" y="80" width="24" height="520" fill="#050805" />
+                    <ellipse cx="90" cy="68" rx="34" ry="70" fill="#060a05" />
+                    <rect x="170" y="55" width="26" height="545" fill="#050805" />
+                    <ellipse cx="183" cy="42" rx="42" ry="82" fill="#060a05" />
+                    <rect x="220" y="75" width="22" height="525" fill="#050805" />
+                    <ellipse cx="231" cy="63" rx="30" ry="65" fill="#060a05" />
+                    <!-- right side -->
+                    <rect x="755" y="70" width="26" height="530" fill="#050805" />
+                    <ellipse cx="768" cy="58" rx="38" ry="76" fill="#060a05" />
+                    <rect x="808" y="58" width="28" height="542" fill="#050805" />
+                    <ellipse cx="822" cy="46" rx="44" ry="84" fill="#060a05" />
+                    <rect x="862" y="82" width="22" height="518" fill="#050805" />
+                    <ellipse cx="873" cy="70" rx="32" ry="68" fill="#060a05" />
+                    <rect x="910" y="65" width="24" height="535" fill="#050805" />
+                    <ellipse cx="922" cy="52" rx="36" ry="74" fill="#060a05" />
+                </g>
+                <!-- Foreground trees (closest, darkest, widest) -->
+                <rect x="255" y="80" width="34" height="520" fill="#040604" />
+                <ellipse cx="272" cy="62" rx="55" ry="95" fill="#050805" />
+                <rect x="310" y="100" width="28" height="500" fill="#040604" />
+                <ellipse cx="324" cy="84" rx="44" ry="82" fill="#050805" />
+                <!-- right foreground -->
+                <rect x="668" y="85" width="34" height="515" fill="#040604" />
+                <ellipse cx="685" cy="67" rx="52" ry="92" fill="#050805" />
+                <rect x="718" y="100" width="28" height="500" fill="#040604" />
+                <ellipse cx="732" cy="84" rx="42" ry="80" fill="#050805" />
+                <!-- Ground roots suggestion -->
+                <ellipse cx="272" cy="598" rx="60" ry="12" fill="#030504" />
+                <ellipse cx="685" cy="598" rx="58" ry="12" fill="#030504" />
+                <!-- Center gap with path suggestion (slightly lighter ground) -->
+                <rect x="340" y="380" width="320" height="220" fill="#060a04" rx="60" />
+            </svg>
+            <div id="forest-ground"></div>
+            <!-- Milo in forest -->
+            <div id="milo-forest">
+                <svg width="clamp(44px,9vw,60px)" height="clamp(90px,18vw,120px)" viewBox="0 0 56 120">
+                    <ellipse cx="28" cy="16" rx="12" ry="13" fill="#030201" />
+                    <rect x="25" y="27" width="7" height="8" fill="#030201" />
+                    <rect x="14" y="34" width="28" height="40" rx="4" fill="#030201" />
+                    <line x1="14" y1="38" x2="4" y2="72" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="42" y1="38" x2="50" y2="66" stroke="#030201" stroke-width="7" stroke-linecap="round" />
+                    <line x1="22" y1="72" x2="18" y2="108" stroke="#030201" stroke-width="9" stroke-linecap="round" />
+                    <line x1="34" y1="72" x2="38" y2="108" stroke="#030201" stroke-width="9" stroke-linecap="round" />
+                    <ellipse cx="16" cy="111" rx="9" ry="5" fill="#030201" />
+                    <ellipse cx="40" cy="111" rx="9" ry="5" fill="#030201" />
+                </svg>
+            </div>
+            <!-- Dog -->
+            <div id="dog-wrap">
+                <div id="bark-bubble">WOOF! WOOF!</div>
+                <svg width="clamp(44px,9vw,65px)" height="clamp(30px,7vw,48px)" viewBox="0 0 65 48">
+                    <!-- dog body -->
+                    <ellipse cx="32" cy="28" rx="22" ry="12" fill="#030201" />
+                    <!-- head -->
+                    <ellipse cx="10" cy="22" rx="10" ry="9" fill="#030201" />
+                    <!-- snout -->
+                    <ellipse cx="3" cy="25" rx="5" ry="4" fill="#030201" />
+                    <!-- ear -->
+                    <ellipse cx="8" cy="14" rx="5" ry="7" fill="#030201" transform="rotate(-15 8 14)" />
+                    <!-- tail -->
+                    <path d="M54 22 Q68 10 62 6" stroke="#030201" stroke-width="5" fill="none" stroke-linecap="round" />
+                    <!-- legs -->
+                    <rect x="14" y="36" width="8" height="13" rx="3" fill="#030201" />
+                    <rect x="26" y="37" width="8" height="12" rx="3" fill="#030201" />
+                    <rect x="38" y="36" width="8" height="13" rx="3" fill="#030201" />
+                    <rect x="48" y="37" width="8" height="12" rx="3" fill="#030201" />
+                </svg>
+            </div>
+            <div id="forest-vig"></div>
+        </div><!-- end sc-forest -->
+
+        <!-- OVERLAYS (inside scene-wrap so they cover scenes, not UI) -->
+        <div id="veil"></div>
+        <div id="redflash"></div>
+
+        <!-- HUD -->
+        <div id="phase-lbl">Evening</div>
+        <div id="sw">
+            <div id="sl">Composure</div>
+            <div id="sbg">
+                <div id="sb"></div>
+            </div>
+        </div>
+
+    </div><!-- end scene-wrap -->
+
+    <!-- UI -->
+    <div id="ui">
+        <div id="dbox">
+            <div id="player-line"></div>
+            <div id="stag">Milo</div>
+            <div id="dtext">The sun should've set over an hour ago. I've been sitting here watching it... it just won't
+                go down.</div>
+        </div>
+        <div id="choices"></div>
+    </div>
+
+    <div id="end">
+        <div id="et">The dog knew</div>
+        <div id="eq">She ran before either of you could.<br><br>Milo never called after her.<br>He just watched the
+            forest close behind her<br>like a curtain.</div>
+        <div id="es">fin.</div>
+    </div>
+
+    <script>
+        // ── Stars (outside) ──
+        const starsOut = document.getElementById('stars-out');
+        for (let i = 0; i < 80; i++) {
+            const s = document.createElement('div'); s.className = 'star';
+            const sz = Math.random() * 2.5 + .5;
+            s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random() * 62}%;left:${Math.random() * 100}%;animation-delay:${Math.random() * 2}s;animation-duration:${1.5 + Math.random()}s;`;
+            starsOut.appendChild(s);
+        }
+
+        // ── Fireflies (forest) ──
+        const forestFg = document.getElementById('sc-forest');
+        for (let i = 0; i < 14; i++) {
+            const f = document.createElement('div'); f.className = 'firefly';
+            const fx = (Math.random() * 40 - 20) + 'px', fy = (Math.random() * -30 - 10) + 'px';
+            f.style.cssText = `left:${20 + Math.random() * 60}%;top:${20 + Math.random() * 40}%;animation-delay:${Math.random() * 4}s;animation-duration:${3 + Math.random() * 3}s;--fx:${fx};--fy:${fy};z-index:5;`;
+            forestFg.appendChild(f);
+        }
+
+        // ── State ──
+        let sanity = 100, turn = 0, busy = false, over = false;
+        const $ = id => document.getElementById(id);
+
+        const veil = $('veil'), rf = $('redflash'), phaseLbl = $('phase-lbl'), sb = $('sb'),
+            dtext = $('dtext'), pline = $('player-line'), stag = $('stag'), choEl = $('choices'),
+            monster = $('monster');
+
+        // ── OUTSIDE STORY (turns 1–4) ──
+        const OUT = [
+            {
+                c: [
+                    {
+                        b: "Maybe it's just a long evening?", y: "Maybe it's just a long evening? Summer does that sometimes.",
+                        m: "Milo: No... it's past nine. The sky should be black. This isn't normal.", sd: 5, ma: 'stay'
+                    },
+                    {
+                        b: "You're right, I feel it too.", y: "I feel it too. Something's very wrong here.",
+                        m: "Milo: *exhales* I thought I was imagining it. So you feel it too. That's... somehow worse.", sd: 8, ma: 'stay'
+                    },
+                    {
+                        b: "...(say nothing)", y: "...",
+                        m: "Milo: *looks at you, then back at the horizon* Yeah. Me neither.", sd: 10, ma: 'stay'
+                    },
+                ]
+            },
+            {
+                c: [
+                    {
+                        b: "Should we go inside?", y: "Should we go inside?",
+                        m: "Milo: *pauses* ...Inside. Mama should've called us for dinner. The house has been quiet all afternoon.", sd: 6, ma: 'look'
+                    },
+                    {
+                        b: "The birds stopped. Everything stopped.", y: "The birds — I haven't heard a single one. Not even crickets.",
+                        m: "Milo: *stiffens* You're right. Everything just... stopped. When exactly did that happen?", sd: 10, ma: 'stay'
+                    },
+                    {
+                        b: "Your shadow is pointing the wrong direction.", y: "Milo, your shadow — it's pointing east. The sun is in the wrong position.",
+                        m: "Milo: *looks down slowly* ...It is. *looks up* It hasn't moved in thirty minutes. I've been watching it.", sd: 12, ma: 'stand'
+                    },
+                ]
+            },
+            {
+                c: [
+                    {
+                        b: "There's a light in the house. I didn't see anyone turn it on.", y: "Milo. There's a light on inside. I didn't see anyone turn it on.",
+                        m: "Milo: *turns slowly* That's the living room. I locked up when I came out here. Nobody is home.", sd: 14, ma: 'look'
+                    },
+                    {
+                        b: "No phone signal — how long has that been?", y: "No signal on my phone. How long has that been?",
+                        m: "Milo: *pulls out phone* Mine too. Been that way since— *stares at screen* Since before I noticed the sun stopped. How did I not notice?", sd: 10, ma: 'stay'
+                    },
+                    {
+                        b: "That curtain just moved.", y: "Milo. That curtain in the window — it just moved.",
+                        m: "Milo: *goes very still* ...Nobody is in that house. I'm going to stand up very slowly. Don't run.", sd: 15, ma: 'stand'
+                    },
+                ]
+            },
+            {
+                c: [
+                    {
+                        b: "We go in together.", y: "We have to go in, Milo. Whatever's inside — together.",
+                        m: "Milo: *nods slowly* ...Together. Yeah. *walks toward the house without looking back*", sd: 8, ma: 'look', trans: true
+                    },
+                    {
+                        b: "Something just watched us from the window.", y: "Don't look now... but something just watched us from that window.",
+                        m: "Milo: *freezes* I'm going to count to three and we go to the door. One. Two— *a soft knock from inside* —That came from inside.", sd: 18, ma: 'stand', trans: true
+                    },
+                    {
+                        b: "The sun — it moved backward. It went up.", y: "Milo. The sun just moved — but it went UP. Not down.",
+                        m: "Milo: *goes pale* That's not— *barely a whisper* Something is using this place. We need to get inside. Now.", sd: 20, ma: 'look', trans: true
+                    },
+                ]
+            },
+        ];
+
+        // ── SALA STORY (turns 5–7) ──
+        const SALA = [
+            {
+                intro: "Milo: *closes the door, looks around* The lamp... I didn't leave it on. *looks at the window slowly* It's warmer in here than it should be.",
+                c: [
+                    {
+                        b: "Lock the door.", y: "Lock it. Right now.",
+                        m: "Milo: *reaches for the lock — click — then freezes* It was already locked. From the inside. I didn't do that.", sd: 15, ma: 'turn'
+                    },
+                    {
+                        b: "Where's your family? It's too quiet.", y: "Milo, where's your family? The house is completely silent.",
+                        m: "Milo: Mama was supposed to be home by six. *quietly* She always turns the lamp off when she leaves.", sd: 10, ma: 'stay'
+                    },
+                    {
+                        b: "I heard something from the back room.", y: "Shhh. Listen. Something moved — from the back of the house.",
+                        m: "Milo: *goes completely still* *barely audible* That's my bedroom. *long pause* I live alone.", sd: 18, ma: 'right'
+                    },
+                ]
+            },
+            {
+                intro: null, monsterPass: true,
+                c: [
+                    {
+                        b: "The window — something just walked past it.", y: "Milo. Stop. Something just passed the window. That shadow.",
+                        m: "Milo: *spins around, stares at the window* ...I saw it. *voice dropping* That wasn't a person. That was not shaped like a person.", sd: 18, ma: 'turn'
+                    },
+                    {
+                        b: "Did you see that shape outside?", y: "Tell me you saw that. Outside the window just now.",
+                        m: "Milo: *barely breathing* I saw it. *takes a step back from the window* Whatever it is... it was tall. Too tall.", sd: 20, ma: 'stay'
+                    },
+                    {
+                        b: "Don't go near the window.", y: "Don't go near the window. Whatever that was, don't look back at it.",
+                        m: "Milo: *frozen* I can still see it in my head. *quietly* It stopped at the glass. Like it was looking in at us.", sd: 22, ma: 'left'
+                    },
+                ]
+            },
+            {
+                intro: null,
+                c: [
+                    {
+                        b: "Maybe we should try to rest. Bedroom?", y: "Milo... maybe we try to rest. Your bedroom.",
+                        m: "Milo: *stares at the hallway* The bedroom. Yeah. *a long exhale* Yeah, okay. Let's... let's go lie down. *doesn't move for a second, then starts walking*", sd: 8, ma: 'stay', toRoom: true
+                    },
+                    {
+                        b: "The light under the door — that red.", y: "Look at the bottom of that door, Milo. That color.",
+                        m: "Milo: *looks at the red seeping under the door, then slowly up at you* The bedroom is that way. *very quietly* Let's go. Now.", sd: 22, ma: 'stay', toRoom: true, fx: 'doorseep'
+                    },
+                    {
+                        b: "We can't stay in here with that thing outside.", y: "We can't stay here with that thing circling outside. Bedroom — we'll think.",
+                        m: "Milo: *nods once, tight* Right. Right. *moves toward the hallway quickly* Don't let go of the lamp.", sd: 12, ma: 'turn', toRoom: true
+                    },
+                ]
+            },
+        ];
+
+        // ── BEDROOM STORY (turns 8–9) ──
+        const BED = [
+            {
+                intro: "Milo: *sits on the edge of the bed, head down* ...I've been in this room my whole life. *looks at the window* It looks different at night now.",
+                c: [
+                    {
+                        b: "The moon looks wrong through the curtain.", y: "The moon through your curtain... the light looks wrong. Too blue.",
+                        m: "Milo: *looks up at the window* ...Yeah. *quietly* That's not moonlight. Moonlight is soft. That's cold. *pulls knees up* Something is watching from out there.", sd: 12, ma: 'stay'
+                    },
+                    {
+                        b: "Try to sleep. You need to rest.", y: "Milo. Try to sleep. You need to rest your mind.",
+                        m: "Milo: *lays back slowly* ...What if I close my eyes and the sun rises wrong again? What if this never ends?", sd: 8, ma: 'stay'
+                    },
+                    {
+                        b: "Turn off the lamp. Maybe it can't see us in the dark.", y: "Turn off the lamp. Maybe it can't see us if we're in the dark.",
+                        m: "Milo: *hesitates, hand near the lamp* ...You think that'll work? *looks at you* Okay. Together. *reaches for the switch*", sd: 10, ma: 'stay', lampOff: true
+                    },
+                ]
+            },
+            {
+                intro: null,
+                c: [
+                    {
+                        b: "We should've stayed outside.", y: "Maybe we should've stayed outside. At least we could run.",
+                        m: "Milo: *eyes still closed* ...I keep thinking about the bench. It was just a normal bench two hours ago. *pause* Where do you even run when the sky breaks?", sd: 10, ma: 'stay'
+                    },
+                    {
+                        b: "Milo. Do you hear that sound?", y: "Milo. Do you hear that? That... hum.",
+                        m: "Milo: *opens eyes slowly* ...It's the house. The walls. They do that sometimes in the wind— *stops* There's no wind tonight.", sd: 14, ma: 'stay'
+                    },
+                    {
+                        b: "Turn off the lamp.", y: "Turn off the lamp now, Milo.",
+                        m: "Milo: *reaches for the lamp switch, looks at you one more time* ...Don't move when it goes dark. *click*", sd: 10, ma: 'stay', lampOff: true
+                    },
+                ]
+            },
+        ];
+
+        // ── FOREST STORY (2 nodes, last node auto-triggers dog run) ──
+        const FOR = [
+            {
+                intro: "Milo: *looks around slowly* ...The trees. We're in the forest. *looks down at his feet* I don't remember walking here. *hears a sound beside him* Luna?",
+                c: [
+                    {
+                        b: "She came with us. She followed us here.", y: "She came with us somehow. Good girl. *kneels down slowly*",
+                        m: "Milo: *kneels, hand on her back* Luna, hey. Hey girl. *she licks his hand once, then stiffens, ears up, facing the dark* ...What does she see.", sd: 5, ma: 'stay'
+                    },
+                    {
+                        b: "How did she get here?", y: "How is she here, Milo? She was back at the house.",
+                        m: "Milo: *stares at her* I locked her inside. She was in the sala. *quietly* She can't be here. *Luna's body goes low, a tremor in her chest*", sd: 6, ma: 'stay'
+                    },
+                    {
+                        b: "She's growling. Something is in those trees.", y: "Listen — she's growling. Something's in there.",
+                        m: "Milo: *goes very still* She growls like that when there's something wrong. Not when she's scared. *pause* When she wants you to know.", sd: 10, ma: 'stay'
+                    },
+                ]
+            },
+            {
+                intro: null,
+                c: [
+                    {
+                        b: "Talk to her. Calm her down.", y: "Talk to her, Milo. She'll listen to you.",
+                        m: "Milo: *kneels again, voice low* Luna. Hey. It's okay. *she stops growling — total silence — and then stares directly at you* ...She's not looking at the trees anymore. She's looking at you.", sd: 12, ma: 'stay', dogEnd: true
+                    },
+                    {
+                        b: "The sun — even here it won't set.", y: "Look up, Milo. Even here. Even in the forest. It still won't set.",
+                        m: "Milo: *tilts head up through the canopy* ...There's light between the branches. There's no sun I can see but the sky is bright. *Luna lets out one sharp bark* That's her warning bark.", sd: 15, ma: 'stay', dogEnd: true
+                    },
+                    {
+                        b: "Don't move. Don't breathe.", y: "Don't move. Don't breathe. Just stay still.",
+                        m: "Milo: *frozen* *barely a whisper* She only does this once. One warning. And then she— *Luna barks, twice, sharp and fast*", sd: 18, ma: 'stay', dogEnd: true
+                    },
+                ]
+            },
+        ];
+
+        // ══════════ HELPERS ══════════
+        function setSan(v) {
+            sanity = Math.max(0, v); sb.style.width = sanity + '%';
+            if (sanity < 35) sb.style.background = 'rgba(165,12,12,.72)';
+            else if (sanity < 60) sb.style.background = 'rgba(150,76,0,.65)';
+        }
+        let ttyp = null;
+        function typeText(txt, cb) {
+            if (ttyp) clearInterval(ttyp);
+            dtext.textContent = ''; let i = 0;
+            ttyp = setInterval(() => { if (i < txt.length) { dtext.textContent += txt[i]; i++; } else { clearInterval(ttyp); if (cb) cb(); } }, 24);
+        }
+        function showYou(t) { pline.textContent = t; pline.classList.add('on'); }
+        function hideYou() { pline.classList.remove('on'); pline.textContent = ''; }
+        function dis() { document.querySelectorAll('.cbtn').forEach(b => b.disabled = true); }
+        function buildC(node) {
+            choEl.innerHTML = '';
+            node.c.forEach((c, i) => {
+                const b = document.createElement('button'); b.className = 'cbtn'; b.textContent = c.b;
+                b.onclick = () => pick(node, i); choEl.appendChild(b);
+            });
+        }
+        function showScene(id) {
+            document.querySelectorAll('.scene').forEach(s => { s.classList.remove('active'); s.style.pointerEvents = 'none'; });
+            const sc = document.getElementById('sc-' + id);
+            sc.classList.add('active'); sc.style.pointerEvents = 'all';
+        }
+        function setPhase(t) { phaseLbl.textContent = t; }
+
+        function miloOutA(a) {
+            const m = $('milo-out'); m.classList.remove('stand', 'look');
+            if (a === 'stand') m.classList.add('stand');
+            if (a === 'look') m.classList.add('look');
+        }
+        function miloSalaA(a) {
+            const m = $('milo-sala');
+            m.classList.remove('right', 'left', 'turn');
+            m.style.left = '';
+            if (a === 'right') m.classList.add('right');
+            if (a === 'left') m.classList.add('left');
+            if (a === 'turn') m.classList.add('turn');
+        }
+
+        // ══════ TRANSITIONS ══════
+        function progOutdoor() {
+            if (turn === 2) { $('sky').classList.add('dusk'); $('sun-out').classList.add('setting'); $('stars-out').classList.add('show'); setPhase('Dusk'); }
+            if (turn === 3) { $('sky').classList.add('night'); $('sun-out').classList.add('set'); $('win-l-out').setAttribute('fill', '#5a3800'); $('win-r-out').setAttribute('fill', '#5a3800'); setPhase('Night'); }
+            if (turn === 4) { $('win-l-out').setAttribute('fill', '#3a0000'); $('win-r-out').setAttribute('fill', '#3a0000'); rf.classList.add('on'); }
+        }
+
+        function fadeVeil(inDur, outDur, cb) {
+            veil.style.transition = `opacity ${inDur}s ease`;
+            veil.classList.add('fade');
+            setTimeout(() => {
+                if (cb) cb();
+                setTimeout(() => {
+                    veil.style.transition = `opacity ${outDur}s ease`;
+                    veil.classList.remove('fade');
+                }, 400);
+            }, inDur * 1000 + 200);
+        }
+
+        function toSala() {
+            currentScene = 'sala';
+            veil.style.transition = 'opacity 2.5s ease'; veil.classList.add('fade');
+            setTimeout(() => {
+                rf.classList.remove('on');
+                showScene('sala');
+                setPhase('Inside');
+                setTimeout(() => { $('sala-moon').classList.add('show');['sw1', 'sw2', 'sw3'].forEach(id => $(id).classList.add('show')); }, 500);
+                veil.style.transition = 'opacity 2.5s ease';
+                veil.classList.remove('fade');
+                setTimeout(() => {
+                    hideYou(); stag.textContent = 'Milo';
+                    const node = SALA[0];
+                    typeText(node.intro, () => { setTimeout(() => buildC(node), 800); });
+                }, 1200);
+            }, 2700);
+        }
+
+        function toRoom() {
+            currentScene = 'bedroom';
+            veil.style.transition = 'opacity 2.5s ease'; veil.classList.add('fade');
+            setTimeout(() => {
+                showScene('bedroom');
+                setPhase('Bedroom');
+                rf.classList.remove('on');
+                $('bed-moonbeam').classList.add('show');
+                veil.style.transition = 'opacity 2s ease'; veil.classList.remove('fade');
+                setTimeout(() => {
+                    hideYou(); stag.textContent = 'Milo';
+                    const node = BED[0];
+                    typeText(node.intro, () => { setTimeout(() => buildC(node), 800); });
+                }, 1100);
+            }, 2700);
+        }
+
+        function doLampOff() {
+            choEl.innerHTML = ''; hideYou();
+            // Dim the bedroom lamp glow elements
+            document.querySelectorAll('#sc-bedroom .lg').forEach(e => e.style.opacity = '0');
+            $('bed-lamp-glow').style.opacity = '0';
+            $('bed-halo').classList.add('off');
+            $('bed-vig').classList.add('darker');
+            setTimeout(() => { $('bed-dark-overlay').classList.add('on'); }, 1500);
+            setTimeout(doSunrise, 3800);
+        }
+
+        function doSunrise() {
+            // veil fades in (scene-wrap level covers bedroom black)
+            veil.style.transition = 'opacity 1s ease'; veil.classList.add('fade');
+            setTimeout(() => {
+                // switch to sunrise scene while veil is black
+                showScene('sunrise');
+                setPhase('');
+                rf.classList.remove('on');
+                choEl.innerHTML = ''; hideYou(); dis();
+                // reset sunrise state in case it was seen before
+                const bg = $('sunrise-bg'), sr = $('sun-rise'), fog = $('sunrise-fog'), cap = $('sunrise-caption');
+                bg.className = ''; sr.className = ''; fog.classList.remove('show'); cap.classList.remove('on'); cap.textContent = '';
+
+                // fade veil out to reveal sunrise scene
+                setTimeout(() => {
+                    veil.style.transition = 'opacity 1.8s ease';
+                    veil.classList.remove('fade');
+                }, 300);
+
+                // start sunrise animation
+                setTimeout(() => { cap.textContent = "The sun rose."; cap.classList.add('on'); }, 2000);
+                setTimeout(() => { bg.classList.add('rising'); sr.classList.add('rise'); fog.classList.add('show'); }, 2200);
+                setTimeout(() => { bg.classList.add('bright'); }, 3400);
+                setTimeout(() => { cap.textContent = "It rose fast. Too fast.\nLike it had been holding its breath."; }, 3800);
+                setTimeout(() => { cap.classList.remove('on'); }, 5600);
+
+                // fade to black → forest
+                setTimeout(() => {
+                    veil.style.transition = 'opacity 2s ease';
+                    veil.classList.add('fade');
+                }, 6200);
+                setTimeout(doForest, 8400);
+            }, 1100);
+        }
+
+        function doForest() {
+            currentScene = 'forest';
+            veil.style.transition = 'opacity 1.8s ease'; veil.classList.add('fade');
+            setTimeout(() => {
+                showScene('forest');
+                setPhase('The Forest');
+                veil.style.transition = 'opacity 2.5s ease'; veil.classList.remove('fade');
+                setTimeout(() => {
+                    hideYou(); stag.textContent = 'Milo';
+                    typeText(FOR[0].intro, () => { setTimeout(() => buildC(FOR[0]), 800); });
+                }, 1200);
+            }, 1900);
+        }
+
+        function doBark() {
+            const dw = $('dog-wrap'), bb = $('bark-bubble');
+            bb.classList.add('on');
+            dw.classList.add('bark');
+            setTimeout(() => { bb.classList.remove('on'); dw.classList.remove('bark'); }, 1800);
+        }
+
+        function dogBarkAndEnd() {
+            over = true; dis(); choEl.innerHTML = '';
+            const bb = $('bark-bubble'), dw = $('dog-wrap');
+
+            // 0.6s — show bark bubble, shake dog
+            setTimeout(() => {
+                bb.textContent = 'WOOF!  WOOF!';
+                bb.classList.add('on');
+                dw.classList.add('bark');
+                typeText('Milo: Luna— *she bolts left, into the trees, gone in seconds* ...Luna!');
+            }, 600);
+
+            // 1.8s — bubble off, bark shake off, dog starts running left
+            setTimeout(() => {
+                bb.classList.remove('on');
+                dw.classList.remove('bark');
+                dw.classList.add('run');
+            }, 1800);
+
+            // 4s — composure starts draining fast
+            setTimeout(() => {
+                const drain = setInterval(() => {
+                    setSan(sanity - 4);
+                    if (sanity <= 0) { clearInterval(drain); }
+                }, 80);
+            }, 4000);
+
+            // 5.5s — type final line
+            setTimeout(() => {
+                typeText('Milo: *staring at where she disappeared* ...Why won\'t the sun just set.');
+            }, 5500);
+
+            // 8s — veil fades to black
+            setTimeout(() => {
+                veil.style.transition = 'opacity 4s ease';
+                veil.classList.add('fade');
+            }, 8000);
+
+            // 12s — end screen
+            setTimeout(() => { $('end').classList.add('on'); }, 12200);
+        }
+
+        function doEnd() {
+            over = true; dis();
+            setTimeout(() => {
+                veil.style.transition = 'opacity 4s ease'; veil.classList.add('fade');
+            }, 2000);
+            setTimeout(() => { $('end').classList.add('on'); }, 6500);
+        }
+
+        // ══════ PICK ══════
+        function pick(node, idx) {
+            if (busy || over) return;
+            busy = true; dis();
+            const c = node.c[idx];
+            setSan(sanity - c.sd);
+            hideYou();
+            setTimeout(() => {
+                showYou(c.y);
+                // animate milo
+                if (['out', 'outside'].includes(currentScene)) miloOutA(c.ma);
+                else if (currentScene === 'sala') miloSalaA(c.ma);
+                // fx
+                if (c.fx === 'doorseep') {
+                    $('sala-door').classList.add('seep');
+                    setTimeout(() => $('sala-door').classList.add('bleed'), 2000);
+                    $('sala-vig').classList.add('darker');
+                }
+                setTimeout(() => {
+                    typeText(c.m, () => {
+                        if (c.trans) { turn++; setTimeout(() => { choEl.innerHTML = ''; toSala(); busy = false; }, 1400); }
+                        else if (c.toRoom) { turn++; setTimeout(() => { choEl.innerHTML = ''; toRoom(); busy = false; }, 1400); }
+                        else if (c.lampOff) { turn++; dis(); choEl.innerHTML = ''; setTimeout(() => { doLampOff(); busy = false; }, 1200); }
+                        else if (c.dogEnd) { dis(); setTimeout(dogBarkAndEnd, 1600); }
+                        else if (c.end) { doEnd(); }
+                        else {
+                            turn++;
+                            if (currentScene === 'outside') progOutdoor();
+                            setTimeout(() => {
+                                const next = getNextNode();
+                                if (next) {
+                                    if (next.intro) { typeText(next.intro, () => { setTimeout(() => { buildC(next); busy = false; }, 800); }); }
+                                    else if (next.monsterPass) {
+                                        monster.classList.add('pass');
+                                        setTimeout(() => { monster.classList.remove('pass'); }, 4000);
+                                        buildC(next); busy = false;
+                                    }
+                                    else if (next.doBark) { doBark(); buildC(next); busy = false; }
+                                    else { buildC(next); busy = false; }
+                                } else { busy = false; }
+                            }, 900);
+                        }
+                    });
+                }, 600);
+            }, 80);
+        }
+
+        let currentScene = 'outside';
+        let storyPos = { outside: 0, sala: 0, bedroom: 0, forest: 0 };
+
+        function getNextNode() {
+            if (currentScene === 'outside') {
+                storyPos.outside++;
+                return OUT[storyPos.outside] || null;
+            }
+            if (currentScene === 'sala') {
+                storyPos.sala++;
+                if (storyPos.sala === 1) { currentScene = 'sala'; return SALA[1]; }
+                if (storyPos.sala === 2) { return SALA[2]; }
+                return null;
+            }
+            if (currentScene === 'bedroom') {
+                storyPos.bedroom++;
+                return BED[storyPos.bedroom] || null;
+            }
+            if (currentScene === 'forest') {
+                storyPos.forest++;
+                return FOR[storyPos.forest] || null;
+            }
+            return null;
+        }
+
+        // ── INIT ──
+        setSan(100);
+        buildC(OUT[0]);
+        turn = 1;
+        setInterval(() => { if (over) return; setSan(sanity - 1); if (sanity <= 0) doEnd(); }, 5000);
+
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("sw.js");
+        }
+
+        let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+const installBtn = document.getElementById("install-btn");
+const installScreen = document.getElementById("install-screen");
+const gameContainer = document.getElementById("game-container");
+const loadingBar = document.getElementById("loading-bar");
+
+installBtn.addEventListener("click", async () => {
+
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  }
+
+  // Smooth loading animation
+  loadingBar.style.width = "100%";
+
+  setTimeout(() => {
+    installScreen.style.opacity = "0";
+
+    setTimeout(() => {
+      installScreen.style.display = "none";
+      gameContainer.style.display = "block";
+    }, 1000);
+
+  }, 2500);
+});
+    </script>
+</body>
+
+</html>
